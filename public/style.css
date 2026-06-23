@@ -1,0 +1,393 @@
+/* ===== RESET & BASE ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: #e0e0e0;
+}
+
+.container {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+/* ===== CARDS ===== */
+.card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 40px 32px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #f093fb, #f5576c, #4facfe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    color: #999;
+    margin-bottom: 28px;
+    font-size: 0.95rem;
+}
+
+/* ===== STATS BAR ===== */
+.stats-bar {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 24px;
+    font-size: 0.85rem;
+    color: #aaa;
+}
+
+.stats-bar strong {
+    color: #fff;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #bbb;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+select, input[type="text"] {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+select:focus, input[type="text"]:focus {
+    border-color: #4facfe;
+}
+
+select option {
+    background: #1a1a2e;
+    color: #fff;
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(90deg, #f093fb, #f5576c);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-secondary {
+    display: inline-block;
+    padding: 12px 24px;
+    background: rgba(79, 172, 254, 0.2);
+    border: 1px solid rgba(79, 172, 254, 0.4);
+    border-radius: 10px;
+    color: #4facfe;
+    text-decoration: none;
+    font-weight: 600;
+    text-align: center;
+    transition: background 0.3s;
+    margin-top: 12px;
+}
+
+.btn-secondary:hover {
+    background: rgba(79, 172, 254, 0.3);
+}
+
+.btn-small {
+    padding: 8px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.3s;
+    text-align: center;
+}
+
+.btn-small:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.btn-danger {
+    border-color: rgba(245, 87, 108, 0.4);
+    color: #f5576c;
+}
+
+.btn-danger:hover {
+    background: rgba(245, 87, 108, 0.2);
+}
+
+/* ===== LINK BOX ===== */
+.link-box {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0 8px;
+}
+
+.link-box input {
+    flex: 1;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: #4facfe;
+    font-size: 0.85rem;
+    font-family: 'Courier New', monospace;
+}
+
+.success-note {
+    color: #69f0ae;
+    font-size: 0.9rem;
+    margin: 12px 0;
+}
+
+/* ===== UTILITY ===== */
+.hidden {
+    display: none !important;
+}
+
+/* ===== BOT BADGE ===== */
+.bot-badge {
+    font-size: 3rem;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* ===== VERIFY PAGE ===== */
+.verify-card {
+    text-align: center;
+}
+
+.platform-badge {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+}
+
+.platform-badge.tiktok {
+    background: linear-gradient(135deg, #00f2ea, #ff0050);
+}
+
+.platform-badge.instagram {
+    background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+#verifyDesc {
+    color: #aaa;
+    margin-bottom: 24px;
+    line-height: 1.6;
+}
+
+/* Pulse animation */
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0.5); }
+    70% { box-shadow: 0 0 0 15px rgba(245, 87, 108, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(245, 87, 108, 0); }
+}
+
+/* ===== FAKE LOADING BAR ===== */
+.loading-bar-container {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 24px 0 12px;
+}
+
+.loading-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #4facfe, #00f2fe);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.loading-text {
+    color: #4facfe;
+    font-size: 0.9rem;
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0%, 20% { opacity: 0.6; }
+    50% { opacity: 1; }
+    80%, 100% { opacity: 0.6; }
+}
+
+/* ===== SUCCESS ===== */
+.success-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 16px;
+    background: linear-gradient(135deg, #00c853, #64dd17);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: #fff;
+    font-weight: bold;
+    animation: popIn 0.5s ease-out;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+#successSection h2 {
+    color: #69f0ae;
+    margin-bottom: 8px;
+}
+
+/* ===== DASHBOARD ===== */
+.dashboard-card {
+    max-width: 750px;
+    width: 100%;
+}
+
+.dashboard-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.photo-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+}
+
+.photo-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.photo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+.photo-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.photo-meta {
+    padding: 12px;
+    font-size: 0.8rem;
+}
+
+.photo-meta .platform-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.platform-tag.tiktok-tag {
+    background: rgba(0, 242, 234, 0.2);
+    color: #00f2ea;
+}
+
+.platform-tag.instagram-tag {
+    background: rgba(225, 48, 108, 0.2);
+    color: #e1306c;
+}
+
+.photo-meta .name {
+    display: block;
+    color: #ccc;
+    font-weight: 500;
+    margin: 2px 0;
+}
+
+.photo-meta .timestamp {
+    color: #888;
+    font-size: 0.75rem;
+    display: block;
+    margin-top: 4px;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.empty-state p {
+    font-size: 1rem;
+}

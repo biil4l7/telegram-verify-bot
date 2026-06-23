@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: telegram-verify-bot
+    env: docker
+    plan: free
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: ADMIN_CHAT_ID
+        sync: false
+      - key: PORT
+        value: 3000
+      - key: BASE_URL
+        sync: false
+    healthCheckPath: /health

